@@ -1,0 +1,6 @@
+README.md
+setup.py
+fastdlo.egg-info/PKG-INFO
+fastdlo.egg-info/SOURCES.txt
+fastdlo.egg-info/dependency_links.txt
+fastdlo.egg-info/top_level.txt
