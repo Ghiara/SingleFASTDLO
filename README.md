@@ -28,7 +28,7 @@ shapely
 
 Installation (from inside the main project directory):
 ```
-pip install .
+pip install -r requirements.txt
 ```
 
 ### Models' weights
