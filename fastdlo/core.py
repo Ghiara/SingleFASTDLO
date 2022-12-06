@@ -25,31 +25,41 @@ class Pipeline():
 
 
     def run(self, source_img, mask_th = 127):
+        '''
+        used to compute the FASTDLO algorithm
+        output:
+        img_out     masked image with mask green other place black
+        splines     splines dict{'points':list,'der':list, 'der2':list, 'radius':list}
+        path_final  the DLO detection point set dict {'points':list, ..}
+        '''
         t0 = arrow.utcnow()
 
-        # MASK
+        # get image MASK
         mask_img = self.network_seg.predict_img(source_img)
-
+        # the background segmented mask value greater than threshold, will be labbled as white(255), otherwise black(0)
         mask_img[mask_img > mask_th] = 255
         mask_img[mask_img != 255] = 0
         #mask_img = cv2.morphologyEx(mask_img, cv2.MORPH_CLOSE, np.ones((3,3), dtype=np.uint8))
 
         seg_time = (arrow.utcnow() - t0).total_seconds() * 1000
 
-        img_out, times = self.process(source_img=source_img, mask_img=mask_img, mask_th=mask_th)
+        img_out, dlo_mask_pointSet, dlo_path, times = self.process(source_img=source_img, mask_img=mask_img, mask_th=mask_th)
 
         times["seg_time"] = seg_time
 
-        return img_out, times
+        return img_out, dlo_mask_pointSet, dlo_path
 
 
 
     def process(self, source_img, mask_img, mask_th=127):
-
+        '''
+        binary mask_img, with white(255), black(0)
+        '''
         t0 = arrow.utcnow() #####################
 
         # PRE-PROCESSING
         lp = LabelsPred()
+        # labelling
         rv = lp.compute(source_img=source_img, mask_img=mask_img, timings=False, mask_threshold=mask_th)
         nodes, single_nodes, pred_edges, vertices_dict, radius_dict, ints_dict  = \
             rv["nodes"], rv["single_nodes"], rv["pred_edges"], rv["vertices"], rv["radius"], rv["intersections"]
@@ -107,7 +117,14 @@ class Pipeline():
 
         # SPLINES FOR MODELLING DLOS
         splines = utils.computeSplines(paths_final, key="points")
-
+        '''
+        Notation by Y.Meng
+        splines a nested dict with keys indicate the series number of identified splines, 
+        under each spline, 'points' saved the spline point positions in form of (x,y)list
+        'der', 
+        'der2',
+        'radius'
+        '''
         ##########################################################################################
 
         #ts = arrow.utcnow()
@@ -116,7 +133,12 @@ class Pipeline():
         except:
             int_splines = None
         #cprint("time intersections splines: {0:.4f} ms".format((arrow.utcnow() - ts).total_seconds() * 1000), "yellow")
-
+        
+        # use the clustered splines point sets to create colored mask
+        '''
+        Notation by Y.Meng
+        function colorMasks has been modified, use green identify all the mask objects, detect DLO as single
+        '''
         colored_mask = utils.colorMasks(splines, shape=mask_img.shape, mask_input=None)
 
         if int_splines:
@@ -134,12 +156,69 @@ class Pipeline():
         times = {"tot_time": tot_time, "proc_time": pre_time, "skel_time": rv["time"]["skel"], "pred_time": pred_time}
         #cprint("***** ALL PROCESSING TIME: {0:.4f} ms *****".format(tot_time), "yellow")
 
-
+        # undetected mask labelled as black
         colored_mask[mask_img < mask_th] = (0, 0, 0)
-        return colored_mask, times
+        '''
+        modified by Y.Meng
+        reunion the color mask and path
+        '''
+        dlo_mask_pointSet, dlo_path = self.merge_dict(spline_dict=splines, path_final=paths_final)
         
 
+        return colored_mask, dlo_mask_pointSet, dlo_path, times
+    
+
+    def merge_dict(self, spline_dict = None, path_final = None):
+        '''
+        Developed by Y.Meng
+        merge the nested spline dict or final path dict
+        '''
+
+        # merged the splines nested dict into one dict instance
+        if spline_dict != None:
+            points = []
+            # der = []
+            # der2 = []
+            # radius = []
+            for idx, dict in enumerate(spline_dict.items()):
+                temp = dict[1]
+                for pos_pair in temp['points']:
+                    points.append(pos_pair)
+                # der.append(temp['der'])
+                # der2.append(temp['der2'])
+                # radius.append(temp['radius'])
+        
+        # merged the path_final nested dict into one dict instance
+        if path_final != None:
+            points_path = []
+            # nodes = []
+            # radius_path = []
+            for idx, dict in enumerate(path_final.items()):
+                temp = dict[1]
+                for pos_pair in temp['points']:
+                    points_path.append(pos_pair)
+                # radius_path.append(temp['radius'])
+                # nodes.append(temp['nodes'])
+        
+        # return the union dict
+        if spline_dict and path_final:
+            # return {'points':points, 'der':der, 'der2':der2, 'radius':radius},\
+            #     {'points':points_path, 'radius':radius_path, 'nodes': nodes}
+            return points, points_path
+        elif spline_dict:
+            # return {'points':points, 'der':der, 'der2':der2, 'radius':radius}
+            return points
+        elif path_final:
+            # return {'points':points_path, 'radius':radius_path, 'nodes': nodes}
+            return points_path
+        else:
+            return 
+
+
     def solveIntersections(self, preds_sorted, nodes, vertices_dict, debug=False):
+        '''
+        used the most possible probability to connect the endpoints of intersection areas
+        '''
         nodes_done = []
         segments_completed = []
         for it in range(len(preds_sorted)):
@@ -221,6 +300,11 @@ class Pipeline():
 
 
     def computeListPoints(self, data, nodes_dict, vertices_dict, radii_dict):
+        '''
+        Notation by Y.Meng
+        compute and load the splines information in form of a nested dict
+        Here we modify it as clustering with 'single' splines instance
+        '''
         points_dict = {}
         for it, value in enumerate(data):
             radius = [radii_dict[idx] for idx in value["ids"]]
@@ -273,6 +357,9 @@ class Pipeline():
 
 
     def predictAndMerge(self, graph_dict, vertices_dict, radii_dict, debug=False):
+        '''
+        use the probability list to connect the intersection areas
+        '''
         t0 = arrow.utcnow()
 
         data_network = AriadnePredictData.getAllPairs(graph_dict["nodes"], graph_dict["pred_edges_index"])

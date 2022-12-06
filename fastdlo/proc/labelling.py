@@ -17,7 +17,11 @@ class LabelsPred():
 
 
     def compute(self, mask_img, source_img, mask_threshold=127, density=7, timings=True):
-
+        '''
+        notation by Y.Meng 2022.12.06
+        create image mask by binarization, origin image with pixel value greater than 
+        mask_threshold will be labeled by 1, otherwise 0
+        '''
 
         t0 = arrow.utcnow()
         # skeleton

@@ -103,6 +103,7 @@ def computeSplines(paths_dict, num_points=1000, s=0.0, key=None):
         
 
         if len(path) > 3:
+            # B-interpolation return interplolated points, 1st derivative, 2nd der
             points, der, der2 = computeSpline(path, num_points=num_points, s=s)
             splines[it] = {"points": points, "der": der, "der2": der2 , "radius": radius}
         else:
@@ -124,12 +125,15 @@ def computeSplines(paths_dict, num_points=1000, s=0.0, key=None):
     return splines
 
 
-def computeSpline(points, num_points = 10, k = 3, s = 0.0):     
+def computeSpline(points, num_points = 10, k = 3, s = 0.0):
+    '''
+    利用B-样条插值法
+    '''     
     points = np.array(points)
-    tck, u = splprep(points.T, u=None, k=k, s=s, per=0)
+    tck, u = splprep(points.T, u=None, k=k, s=s, per=0) # 计算B-样条曲线参数
     u_new = np.linspace(u.min(), u.max(), num_points)
     
-    x_, y_ = splev(u_new, tck, der=0)
+    x_, y_ = splev(u_new, tck, der=0) # 0阶导数插值
 
     xd_, yd_ = splev(u_new, tck, der=1)
 
@@ -146,9 +150,9 @@ def roundRadius(radius, mul=1.0, bound=6):
 
 
 def colorMasks(splines, shape, mask_input=None):
-    colors_k = [i for i in range(10)]
-    colors_k_excl = [i for i in range(10) if i not in list(splines.keys())]
-    colors = COLORS
+    # colors_k = [i for i in range(10)]
+    # colors_k_excl = [i for i in range(10) if i not in list(splines.keys())]
+    # colors = COLORS
     if mask_input is None:
         mask = np.zeros((shape[0], shape[1]), dtype=np.uint8)
         mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2RGB)
@@ -157,19 +161,24 @@ def colorMasks(splines, shape, mask_input=None):
     
     for k, v in splines.items():
         #t0 = arrow.utcnow()
-        if k in colors_k:
-            c = (int(colors(k)[0]*255), int(colors(k)[1]*255), int(colors(k)[2]*255))
-            colors_k.remove(k)
-        else:
-            if colors_k_excl:
-                rand_k = np.random.choice(colors_k_excl)
-                c = (int(colors(rand_k)[0]*255), int(colors(rand_k)[1]*255), int(colors(rand_k)[2]*255))
-                colors_k.remove(rand_k)
-                colors_k_excl.remove(rand_k)
-            else:
-                c = (127,127,127)
 
+        # if k in colors_k:
+        #     c = (int(colors(k)[0]*255), int(colors(k)[1]*255), int(colors(k)[2]*255))
+        #     colors_k.remove(k)
+        # else:
+        #     if colors_k_excl:
+        #         rand_k = np.random.choice(colors_k_excl)
+        #         c = (int(colors(rand_k)[0]*255), int(colors(rand_k)[1]*255), int(colors(rand_k)[2]*255))
+        #         colors_k.remove(rand_k)
+        #         colors_k_excl.remove(rand_k)
+        #     else:
+        #         c = (127,127,127)
 
+        '''
+        modified by Y.Meng
+        we here define all mask instance use the green mask and detected as single DLO
+        '''
+        c = (0, 255, 0) # BGR color
         r = roundRadius(v["radius"])  
 
         for p in splines[k]["points"]:
@@ -186,8 +195,6 @@ def colorMasks(splines, shape, mask_input=None):
 
     mask[mask_input == 0] = (0,0,0)
     return mask
-
-
 
 
 def checkBoundsInv(value, bound_low, bound_up):
@@ -320,8 +327,13 @@ def stdColorsBetweenPoints(point0, point1, image):
 
 
 def colorIntersection(mask, points, radius, key):
-    color = COLORS(key)
-    c = (int(color[0]*255), int(color[1]*255), int(color[2]*255))
+    '''
+    Modified by Y.Meng
+    change the intersection color into green
+    '''
+    c = (0, 255, 0) # BGR color
+    # color = COLORS(key)
+    # c = (int(color[0]*255), int(color[1]*255), int(color[2]*255))
     r = roundRadius(radius)
     x, y = zip(*points)
     for i in range(len(x)):
@@ -329,7 +341,9 @@ def colorIntersection(mask, points, radius, key):
 
 
 def intersectionScoresFromColor(data_list, nodes, image, colored_mask=None, debug=False):
-
+    '''
+    data_list == int_spline
+    '''
     for v in data_list:
         # 0
         attr0, attr00 = nodes[v["c0"][0]], nodes[v["c0"][1]]
