@@ -17,7 +17,7 @@ class Pipeline():
 
     def __init__(self, checkpoint_siam, checkpoint_seg=None, img_w = 640, img_h = 480):
 
-        self.network = NN(device="cpu", checkpoint_path=checkpoint_siam)
+        self.network = NN(device="gpu", checkpoint_path=checkpoint_siam)
         if checkpoint_seg is not None:
             self.network_seg = SegNet(model_name="deeplabv3plus_resnet101", checkpoint_path=checkpoint_seg, img_w=img_w, img_h=img_h)
         else:
@@ -176,43 +176,23 @@ class Pipeline():
 
         # merged the splines nested dict into one dict instance
         if spline_dict != None:
-            points = []
-            # der = []
-            # der2 = []
-            # radius = []
+            points_spline = []
+
             for idx, dict in enumerate(spline_dict.items()):
                 temp = dict[1]
                 for pos_pair in temp['points']:
-                    points.append(pos_pair)
-                # der.append(temp['der'])
-                # der2.append(temp['der2'])
-                # radius.append(temp['radius'])
+                    points_spline.append(pos_pair)
         
         # merged the path_final nested dict into one dict instance
         if path_final != None:
             points_path = []
-            # nodes = []
-            # radius_path = []
+
             for idx, dict in enumerate(path_final.items()):
                 temp = dict[1]
                 for pos_pair in temp['points']:
                     points_path.append(pos_pair)
-                # radius_path.append(temp['radius'])
-                # nodes.append(temp['nodes'])
-        
-        # return the union dict
-        if spline_dict and path_final:
-            # return {'points':points, 'der':der, 'der2':der2, 'radius':radius},\
-            #     {'points':points_path, 'radius':radius_path, 'nodes': nodes}
-            return points, points_path
-        elif spline_dict:
-            # return {'points':points, 'der':der, 'der2':der2, 'radius':radius}
-            return points
-        elif path_final:
-            # return {'points':points_path, 'radius':radius_path, 'nodes': nodes}
-            return points_path
-        else:
-            return 
+
+        return points_spline, points_path
 
 
     def solveIntersections(self, preds_sorted, nodes, vertices_dict, debug=False):
@@ -300,11 +280,6 @@ class Pipeline():
 
 
     def computeListPoints(self, data, nodes_dict, vertices_dict, radii_dict):
-        '''
-        Notation by Y.Meng
-        compute and load the splines information in form of a nested dict
-        Here we modify it as clustering with 'single' splines instance
-        '''
         points_dict = {}
         for it, value in enumerate(data):
             radius = [radii_dict[idx] for idx in value["ids"]]
