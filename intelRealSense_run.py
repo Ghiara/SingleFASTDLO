@@ -35,6 +35,16 @@ if __name__ == "__main__":
     R = np.array([[0,1],[1,0]]) # Rotation matrix for coordinate fitting
     Distance_threshold = 60 # distance detection threshold
     
+    '''
+    colorRange for HSV detection, 
+    save in form of [((H_lower, S_lower, V_lower),(H_upper, S_upper, V_upper)),..]
+    '''
+    colorRange = [
+        ((0, 43, 46),(10, 255, 255)), # red color range 1 HSV
+        ((156, 43, 46),(180, 255, 255)) # red color range 2 HSV
+        # you can add as many colors as you would like
+        # final detected color == color 1 + color 2 + ..
+    ]
     
     
     # weighting file name - NO NEED TO TOUCH
@@ -45,8 +55,14 @@ if __name__ == "__main__":
     # get network weights <- need to create folder named 'weights' under main program folder, paste *.ckpt/*.pth files in it
     checkpoint_siam = os.path.join(script_path, "weights/" + ckpt_siam_name)
     checkpoint_seg = os.path.join(script_path, "weights/" + ckpt_seg_name)
-    # load FASTDLO algorithm pipeline - NO NEED TO TOUCH
-    p = Pipeline(checkpoint_siam=checkpoint_siam, checkpoint_seg=checkpoint_seg, img_w=IMG_W, img_h=IMG_H)
+    # load FASTDLO algorithm pipeline
+    '''
+    NOTATION: color Filter is added into the detection, pipeline need to transfer color range for color filtering
+    '''
+    p = Pipeline(checkpoint_siam=checkpoint_siam, checkpoint_seg=checkpoint_seg, img_w=IMG_W, img_h=IMG_H, colorRange=colorRange)
+    # p = Pipeline(checkpoint_siam=checkpoint_siam, checkpoint_seg=checkpoint_seg, img_w=IMG_W, img_h=IMG_H)
+    
+    
     # set up the realsense pipeline & config - NO NEED TO TOUCH
     pipeline = rs.pipeline()
     config = rs.config()
@@ -90,8 +106,8 @@ if __name__ == "__main__":
                 cv2.drawMarker(color_image, tuple(pos), color=(255,0,0), markerType=3, markerSize=7, thickness=1)
 
             canvas = color_image.copy()
-            # show the detected results with origin stream video together with weight 0.5 for each 
-            canvas = cv2.addWeighted(canvas, 1.0, img_out, 0.5, 0.0) 
+            # show the detected results with origin stream video together with weight 1.0, 0.3 for each 
+            canvas = cv2.addWeighted(canvas, 1.0, img_out, 0.3, 0.0) 
 
             cv2.namedWindow("RealSense", cv2.WINDOW_AUTOSIZE) # set up the window to display the results
             cv2.imshow("RealSense", canvas)

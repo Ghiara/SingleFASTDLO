@@ -1,9 +1,14 @@
 import itertools
 import numpy as np
 import arrow
+import cv2
 
 from fastdlo.siam_net.nn_predict import NN
 from fastdlo.seg_net.predict import SegNet
+#########################################################################
+####### import color Filter for color masking, modified by Y.Meng #######
+#########################################################################
+from fastdlo.colorFilter import ColorFilter
 
 from fastdlo.siam_net.nn_dataset import AriadnePredictData
 from fastdlo.proc.labelling import LabelsPred
@@ -15,9 +20,20 @@ import fastdlo.proc.utils as utils
 class Pipeline():
 
 
-    def __init__(self, checkpoint_siam, checkpoint_seg=None, img_w = 640, img_h = 480):
+    def __init__(self, checkpoint_siam, checkpoint_seg=None, img_w = 640, img_h = 480, colorRange = None):
 
         self.network = NN(device="gpu", checkpoint_path=checkpoint_siam)
+        ##############################################
+        ############ Add color Filter instance #######
+        ##############################################
+        self.colorFilter = ColorFilter()
+        if colorRange is not None:
+            self.colorRange = colorRange
+            self.colorFilter.colorRange = self.colorRange
+        else:
+            self.colorRange = None
+            # self.colorFilter.colorRange = [((156,43,46),(180,255,255))] # by default detect red color items
+    
         if checkpoint_seg is not None:
             self.network_seg = SegNet(model_name="deeplabv3plus_resnet101", checkpoint_path=checkpoint_seg, img_w=img_w, img_h=img_h)
         else:
@@ -35,7 +51,15 @@ class Pipeline():
         t0 = arrow.utcnow()
 
         # get image MASK
-        mask_img = self.network_seg.predict_img(source_img)
+
+        if self.colorRange is not None:
+            # for case of color filtering required
+            color_filtered_img = self.colorFilter(source_img)
+            mask_img = self.network_seg.predict_img(color_filtered_img)
+        else:
+            # No color filtering required, use origin image
+            mask_img = self.network_seg.predict_img(source_img)
+
         # the background segmented mask value greater than threshold, will be labbled as white(255), otherwise black(0)
         mask_img[mask_img > mask_th] = 255
         mask_img[mask_img != 255] = 0

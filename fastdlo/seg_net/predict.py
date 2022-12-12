@@ -6,6 +6,7 @@ import cv2
 import fastdlo.seg_net.model as network
 from fastdlo.seg_net.dataset import BasicDataset
 
+# 2022.12.12        Modification to suitable for color segmentation and prediction by Y.Meng
 
 model_map = {
     'deeplabv3_resnet50': network.deeplabv3_resnet50,
