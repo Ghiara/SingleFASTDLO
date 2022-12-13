@@ -28,7 +28,8 @@ if __name__ == "__main__":
     # Set up the parameters #
     #########################
     '''
-    # YOU MIGHT NEED TO TOUCH THIS PARAMETERS!
+    ########################################################################################
+    # YOU MIGHT NEED TO TOUCH THESE PARAMETERS!
     '''
     IMG_W = 640 # image size
     IMG_H = 480
@@ -43,9 +44,11 @@ if __name__ == "__main__":
         ((0, 43, 46),(10, 255, 255)), # red color range 1 HSV
         ((156, 43, 46),(180, 255, 255)) # red color range 2 HSV
         # you can add as many colors as you would like
-        # final detected color == color 1 + color 2 + ..
+        # final detected merged color == color 1 + color 2 + ..
     ]
-    
+    '''
+    #######################################################################################
+    '''
     
     # weighting file name - NO NEED TO TOUCH
     ckpt_siam_name = "CP_similarity.pth"
@@ -57,11 +60,14 @@ if __name__ == "__main__":
     checkpoint_seg = os.path.join(script_path, "weights/" + ckpt_seg_name)
     # load FASTDLO algorithm pipeline
     '''
+    #############################################################################################################
     NOTATION: color Filter is added into the detection, pipeline need to transfer color range for color filtering
     '''
     p = Pipeline(checkpoint_siam=checkpoint_siam, checkpoint_seg=checkpoint_seg, img_w=IMG_W, img_h=IMG_H, colorRange=colorRange)
     # p = Pipeline(checkpoint_siam=checkpoint_siam, checkpoint_seg=checkpoint_seg, img_w=IMG_W, img_h=IMG_H)
-    
+    '''
+    #############################################################################################################
+    '''
     
     # set up the realsense pipeline & config - NO NEED TO TOUCH
     pipeline = rs.pipeline()
