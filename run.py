@@ -46,6 +46,7 @@ if __name__ == "__main__":
         # you can add as many colors as you would like
         # final detected merged color == color 1 + color 2 + ..
     ]
+    activate_interpolation = True
     '''
     #######################################################################################
     '''
@@ -63,7 +64,8 @@ if __name__ == "__main__":
     #############################################################################################################
     NOTATION: color Filter is added into the detection, pipeline need to transfer color range for color filtering
     '''
-    p = Pipeline(checkpoint_siam=checkpoint_siam, checkpoint_seg=checkpoint_seg, img_w=IMG_W, img_h=IMG_H, colorRange=colorRange)
+    p = Pipeline(checkpoint_siam=checkpoint_siam, checkpoint_seg=checkpoint_seg, 
+    img_w=IMG_W, img_h=IMG_H, colorRange=colorRange, is_interpolation=activate_interpolation)
     # p = Pipeline(checkpoint_siam=checkpoint_siam, checkpoint_seg=checkpoint_seg, img_w=IMG_W, img_h=IMG_H)
     '''
     #############################################################################################################
