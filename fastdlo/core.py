@@ -270,7 +270,6 @@ class Pipeline():
             return points_path
         else:
             count = spline_num - 1
-
             # take the first spline
             final_path = points_path[0]
 
@@ -300,10 +299,10 @@ class Pipeline():
                     del points_path[idx_col+1]
                 else:
                     final_path.extend(points_path[idx_col+1])
-                    del points_path[idx_col+1]
-                points_path[0] = final_path
-
+                    points_path[0] = final_path
+                    del points_path[idx_col+1]                
                 count -= 1
+                
         return final_path
 
 
