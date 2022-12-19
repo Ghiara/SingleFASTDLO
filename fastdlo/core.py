@@ -226,7 +226,7 @@ class Pipeline():
                     pos2 = data[i+1]
                     # detect whether the points in between far away, if not, then connect them with line segment
                     length = np.sqrt(((pos[0]-pos2[0])**2)+((pos[1]-pos2[1])**2))
-                    # Notation the closest point distance is about 5, so the interpolated points vancancy should be at least 10
+                    # Notation the closest point distance is about 5 to 10, so the interpolated points vancancy should be at least 10
                     if length >= 10:
                         # calculate the number of points should be interpolated
                         num_interpolation = int(length / 5 - 1)
@@ -247,7 +247,7 @@ class Pipeline():
                         pass
                 else:
                     pos2 = None
-                return data
+            return data
 
             
     def pathConnection(self, paths_dict):
@@ -274,33 +274,51 @@ class Pipeline():
             final_path = points_path[0]
 
             while count > 0:
+                # get the first col path head and tail, use it as reference
                 head = final_path[0]
                 tail = final_path[-1]
-                map1 = []
-                map2 = []
+                # create 4 maps to compute and save the distances btw heads and tails
+                map1 = [] # ref head to others tails
+                map2 = [] # ref tail to others heads
+                map3 = [] # ref head to others heads
+                map4 = [] # ref tail to others tails
                 # calculate the closest distance btw head & tail to the first spline, and find smallest one
                 for path in points_path[1:]:
                     son_head = path[0]
                     son_tail = path[-1]
-                    length1 = np.sqrt(((head[0]-son_tail[0])**2)+((head[1]-son_tail[1])**2))
+                    # calculate the distance in between
+                    length1 = np.sqrt(((son_tail[0]-head[0])**2)+((son_tail[1]-head[1])**2))
                     length2 = np.sqrt(((son_head[0]-tail[0])**2)+((son_head[1]-tail[1])**2))
+                    length3 = np.sqrt(((son_head[0]-head[0])**2)+((son_head[1]-head[1])**2))
+                    length4 = np.sqrt(((son_tail[0]-tail[0])**2)+((son_tail[1]-tail[1])**2))
                     map1.append(length1)
                     map2.append(length2)
+                    map3.append(length3)
+                    map4.append(length4)
                 
-                map = np.array([map1,map2])
+                map = np.array([map1,map2,map3,map4])
                 h,w = map.shape
                 pos = map.argmin()
                 idx_row, idx_col = pos // w, pos % w
                 # find closest distance and its connection position
-                if idx_row == 0:
+                if idx_row == 0: # head to tail
                     points_path[idx_col+1].extend(points_path[0])
                     final_path = points_path[idx_col+1]
-                    points_path[0] = final_path
-                    del points_path[idx_col+1]
-                else:
+
+                elif idx_row == 1: # tail to head
                     final_path.extend(points_path[idx_col+1])
-                    points_path[0] = final_path
-                    del points_path[idx_col+1]                
+
+                elif idx_row == 2: # head to head
+                    points_path[idx_col+1].reverse() # reverse the list series !
+                    points_path[idx_col+1].extend(points_path[0])
+                    final_path = points_path[idx_col+1]
+
+                else: # tail to tail
+                    points_path[idx_col+1].reverse()
+                    final_path.extend(points_path[idx_col+1])
+                
+                points_path[0] = final_path
+                del points_path[idx_col+1]
                 count -= 1
                 
         return final_path
