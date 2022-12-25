@@ -44,7 +44,7 @@ Download the [weights](https://drive.google.com/file/d/1OVcro53E_8oJxRPHqGy619rB
 
 ### Usage
 
-import as a standard python package with 
+Import as a standard python package with 
 ```
 from fastdlo.core import Pipeline
 ```
@@ -55,7 +55,7 @@ p = Pipeline(checkpoint_siam=checkpoint_siam, checkpoint_seg=checkpoint_seg, img
 ```
 where the ```p``` is Pipeline instance, ```checkpoint_*``` are the ckpt file paths (include file name), ```img_w``` is frame width, ```img_h``` is frame height, ```colorRange``` is HSV limitation that should be detected, in form of ```[((H_lower, S_lower, V_lower),(H_upper, S_upper, V_upper)),..]```, and ```is_interpolation``` is the boolean variable that indicates whether the interpolation functionality should be activated.
 
-the inference can be obtained with 
+The inference can be obtained with 
 ```
 img_out, dlo_mask_pointSet, dlo_path = p.run(source_img=color_image, mask_th=77)
 ```
