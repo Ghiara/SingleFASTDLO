@@ -6,10 +6,10 @@
 </div>
 
 ### Demo
-A demo Video
-<video id="video", controls="", preload="none", poster="https://i.vimeocdn.com/video/862586401_640x360.jpg">
-      <source id="mp4" src="detection_example.mp4" type="video/mp4">
-</video>
+A Demo
+<div align="center">
+![](demo.gif)
+</div>
 
 ### Notation 
 <div align="center">
