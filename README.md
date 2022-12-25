@@ -1,12 +1,12 @@
 
 <div align="center">
-<h2> FASTDLO: Fast Deformable Linear Objects Instance Segmentation </h2>
+<h2> SingleFASTDLO: Fast Single Deformable Linear Objects Instance Segmentation </h2>
 
  :page_with_curl:  [IEEE Xplore](https://ieeexplore.ieee.org/document/9830852)  :page_with_curl:	
 </div>
 
 ### Demo
-A Demo
+A Demo with detection of a single red spline object from complex task environment and partial blocking scenario
 <div align="center">
 <img src='demo.gif'>
 </div>
