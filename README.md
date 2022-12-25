@@ -11,7 +11,7 @@
 
 ### Notation 
 <div align="center">
-[shema](shema.png)
+<img src='shema.png'>
 </div>
 The semantic segmentation module is inherited from above paper mentioned 'FASTDLO' algorithm, we modified this as it can only detect one single DLO with detection path, which can be used in the tracking algorithm e.g. CPD.
 
