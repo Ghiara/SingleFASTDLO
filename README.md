@@ -9,7 +9,10 @@
 
 A demo video
 <div align="center">
-[![Demo Video]](https://user-images.githubusercontent.com/90917547/209478832-66950bb2-05ba-49eb-b582-083ca67c2696.mp4)
+ <video id="video" controls="" preload="none" poster="封面">
+      <source id="mp4" src="[mp4 demo video](https://user-images.githubusercontent.com/90917547/209478832-66950bb2-05ba-49eb-b582-083ca67c2696.mp4)" type="video/mp4">
+</videos>
+
 </div>
 
 ### Notation 
