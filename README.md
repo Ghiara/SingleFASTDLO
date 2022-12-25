@@ -7,9 +7,9 @@
 
 ### Demo
 A demo Video
-<video id="video">
-      <source id="mp4" src="detection_example" type="video/mp4">
-</videos>
+<video id="video", preload="none">
+      <source id="mp4" src="detection_example.mp4" type="video/mp4">
+</video>
 
 ### Notation 
 <div align="center">
