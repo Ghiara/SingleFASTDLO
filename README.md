@@ -9,7 +9,7 @@
 
 A demo video
 <div align="center">
-https://user-images.githubusercontent.com/90917547/209478832-66950bb2-05ba-49eb-b582-083ca67c2696.mp4
+[![Demo Video]](https://user-images.githubusercontent.com/90917547/209478832-66950bb2-05ba-49eb-b582-083ca67c2696.mp4)
 </div>
 
 ### Notation 
