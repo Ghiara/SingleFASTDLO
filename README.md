@@ -7,8 +7,8 @@
 
 ### Demo
 A demo Video
-<video id="video" controls="" preload="none" poster="封面">
-      <source id="mp4" src="detection_example.mp4" type="video/mp4">
+<video id="video">
+      <source id="mp4" src="detection_example" type="video/mp4">
 </videos>
 
 ### Notation 
