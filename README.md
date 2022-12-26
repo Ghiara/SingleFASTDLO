@@ -21,7 +21,7 @@ The semantic segmentation module is inherited from above paper mentioned 'FASTDL
 
 Main dependencies:
 
-The program runs on a Laptop with Ubuntu 22.04 LTS, with 32 GB RAM and Nvidia RTX 1650 mobile graphic card, envrionment management used miniconda, for more details about environment please refer the file 'requriements.txt'. Some key packages need to be installed please see below.
+The program runs on a Dell XPS-15 7590 (2019) Laptop with Ubuntu 22.04 LTS, 32 GB RAM and Nvidia GeForce GTX 1650. For envrionment management miniconda was used, for more details about environment please refer the file 'requriements.txt'. The run file is wirtten based on Intel Realsense Camera interface, before running the program, please install the Intel Realsense dependency from [here](https://dev.intelrealsense.com/docs/python2). Some key packages need to be installed please see below.
 ```
 python (3.8)
 pytorch (1.4.0)
