@@ -1,6 +1,6 @@
 
 <div align="center">
-<h2> SingleFASTDLO: Fast Single Deformable Linear Objects Instance Segmentation </h2>
+<h2> SingleFASTDLO: Single Fast Deformable Linear Objects Instance Segmentation </h2>
 
  :page_with_curl:  [IEEE Xplore](https://ieeexplore.ieee.org/document/9830852)  :page_with_curl:	
 </div>
